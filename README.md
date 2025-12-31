@@ -5,6 +5,7 @@ A Swift Package for fetching weather data that is compatible with Kotlin Multipl
 ## Features
 
 - ✅ Fetch weather information for any location
+- ✅ Observe real-time weather updates with configurable intervals
 - ✅ Compatible with Objective-C for use in KMP projects
 - ✅ Built with Alamofire for robust networking
 - ✅ Cross-platform support (iOS, macOS, tvOS, watchOS, Linux)
@@ -37,6 +38,8 @@ Or add it directly in Xcode:
 
 ### Swift
 
+#### One-time Fetch
+
 ```swift
 import WeatherPackage
 
@@ -54,9 +57,35 @@ WeatherService.shared.fetchWeather(for: "Amsterdam") { weatherData, error in
 }
 ```
 
+#### Observe Weather Updates
+
+```swift
+import WeatherPackage
+
+// Start observing weather updates every 60 seconds
+WeatherService.shared.startObservingWeather(
+    for: "Amsterdam",
+    interval: 60.0
+) { weatherData, error in
+    if let weather = weatherData {
+        print("Updated temperature: \(weather.temperature)°C")
+    }
+}
+
+// Check if currently observing
+if WeatherService.shared.isObserving {
+    print("Currently observing weather updates")
+}
+
+// Stop observing when done
+WeatherService.shared.stopObservingWeather()
+```
+
 ### Kotlin Multiplatform (via Objective-C bridge)
 
 On Apple platforms, the package is fully compatible with Objective-C, making it accessible from Kotlin Multiplatform projects:
+
+#### One-time Fetch
 
 ```kotlin
 // iOS source set
@@ -74,6 +103,28 @@ WeatherService.shared().fetchWeather(for = "Amsterdam") { weatherData, error ->
 }
 ```
 
+#### Observe Weather Updates
+
+```kotlin
+// Start observing weather updates every 60 seconds
+WeatherService.shared().startObservingWeather(
+    for = "Amsterdam",
+    interval = 60.0
+) { weatherData, error ->
+    weatherData?.let {
+        println("Updated temperature: ${it.temperature}°C")
+    }
+}
+
+// Check if currently observing
+if (WeatherService.shared().isObserving) {
+    println("Currently observing weather updates")
+}
+
+// Stop observing when done
+WeatherService.shared().stopObservingWeather()
+```
+
 ## API
 
 ### WeatherService
@@ -83,14 +134,27 @@ The main service class for fetching weather data.
 #### Properties
 
 - `shared`: Singleton instance of WeatherService
+- `isObserving`: Boolean indicating whether weather updates are currently being observed
 
 #### Methods
 
 - `fetchWeather(for location: String, completion: @escaping (WeatherData?, Error?) -> Void)`
-  - Fetches weather data for the specified location
+  - Fetches weather data for the specified location once
   - Parameters:
     - `location`: The name of the location (e.g., "Amsterdam", "New York")
     - `completion`: Completion handler called with either weather data or an error
+
+- `startObservingWeather(for location: String, interval: TimeInterval = 60.0, updateHandler: @escaping (WeatherData?, Error?) -> Void)`
+  - Starts observing weather updates for a location at regular intervals
+  - Parameters:
+    - `location`: The name of the location to observe
+    - `interval`: Time interval between updates in seconds (default: 60 seconds)
+    - `updateHandler`: Handler called with each weather update or error
+  - Note: Calling this method while already observing will stop the previous observation
+
+- `stopObservingWeather()`
+  - Stops the current weather observation
+  - Cleans up timers and handlers
 
 ### WeatherData
 

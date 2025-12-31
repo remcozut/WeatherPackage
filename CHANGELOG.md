@@ -5,6 +5,21 @@ All notable changes to WeatherPackage will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- Weather observation functionality to listen for real-time updates
+- `startObservingWeather(for:interval:updateHandler:)` method for periodic weather updates
+- `stopObservingWeather()` method to cancel weather observations
+- `isObserving` property to check observation status
+- Configurable update intervals for weather observations (default: 60 seconds)
+- Automatic cleanup when starting a new observation
+- Additional unit tests for observation functionality
+
+### Changed
+- Updated README with observation examples for Swift and Kotlin Multiplatform
+- Enhanced BasicUsage.swift example to demonstrate observation functionality
+
 ## [1.0.0] - 2025-12-31
 
 ### Added

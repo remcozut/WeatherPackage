@@ -51,5 +51,29 @@ WeatherService.shared.fetchWeather(for: "") { weatherData, error in
     }
 }
 
+// Example 4: Observing weather updates
+print("\n\nStarting weather observation for Berlin (updates every 5 seconds)...")
+var updateCount = 0
+WeatherService.shared.startObservingWeather(
+    for: "Berlin",
+    interval: 5.0
+) { weatherData, error in
+    updateCount += 1
+    if let weather = weatherData {
+        print("Update #\(updateCount): \(weather.location) - \(weather.temperature)°C at \(weather.timestamp)")
+    } else if let error = error {
+        print("Update #\(updateCount): Error - \(error.localizedDescription)")
+    }
+    
+    // Stop after 3 updates
+    if updateCount >= 3 {
+        print("\nStopping weather observation...")
+        WeatherService.shared.stopObservingWeather()
+        print("Observation stopped. isObserving: \(WeatherService.shared.isObserving)")
+    }
+}
+
+print("Observation started. isObserving: \(WeatherService.shared.isObserving)")
+
 // Keep the program running to allow async callbacks to complete
-RunLoop.main.run(until: Date(timeIntervalSinceNow: 5))
+RunLoop.main.run(until: Date(timeIntervalSinceNow: 20))

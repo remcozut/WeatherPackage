@@ -15,6 +15,15 @@ import Alamofire
     /// Session manager for network requests
     private let session: Session
     
+    /// Timer for periodic weather updates
+    private var updateTimer: Timer?
+    
+    /// Current location being observed
+    private var observedLocation: String?
+    
+    /// Update handler for weather observations
+    private var updateHandler: ((WeatherData?, Error?) -> Void)?
+    
     /// Initialize with default session
     @objc public override init() {
         self.session = Session.default
@@ -61,6 +70,48 @@ import Alamofire
         }
     }
     
+    /// Start observing weather updates for a given location
+    /// - Parameters:
+    ///   - location: The location to observe weather data for
+    ///   - interval: Time interval between updates in seconds (default: 60 seconds)
+    ///   - updateHandler: Handler called with each weather update or error
+    @objc public func startObservingWeather(
+        for location: String,
+        interval: TimeInterval = 60.0,
+        updateHandler: @escaping (WeatherData?, Error?) -> Void
+    ) {
+        // Stop any existing observation
+        stopObservingWeather()
+        
+        // Store the location and handler
+        observedLocation = location
+        self.updateHandler = updateHandler
+        
+        // Fetch immediately
+        fetchWeather(for: location, completion: updateHandler)
+        
+        // Set up timer for periodic updates
+        updateTimer = Timer.scheduledTimer(
+            withTimeInterval: interval,
+            repeats: true
+        ) { [weak self] _ in
+            self?.fetchWeather(for: location, completion: updateHandler)
+        }
+    }
+    
+    /// Stop observing weather updates
+    @objc public func stopObservingWeather() {
+        updateTimer?.invalidate()
+        updateTimer = nil
+        observedLocation = nil
+        updateHandler = nil
+    }
+    
+    /// Check if currently observing weather updates
+    @objc public var isObserving: Bool {
+        return updateTimer != nil && observedLocation != nil
+    }
+    
     /// Map Alamofire errors to WeatherError
     private func mapError(_ error: AFError) -> Error {
         if error.isResponseValidationError {
@@ -86,6 +137,15 @@ public class WeatherService {
     
     /// Session manager for network requests
     private let session: Session
+    
+    /// Timer for periodic weather updates
+    private var updateTimer: Timer?
+    
+    /// Current location being observed
+    private var observedLocation: String?
+    
+    /// Update handler for weather observations
+    private var updateHandler: ((WeatherData?, Error?) -> Void)?
     
     /// Initialize with default session
     public init() {
@@ -129,6 +189,48 @@ public class WeatherService {
                 completion(nil, weatherError)
             }
         }
+    }
+    
+    /// Start observing weather updates for a given location
+    /// - Parameters:
+    ///   - location: The location to observe weather data for
+    ///   - interval: Time interval between updates in seconds (default: 60 seconds)
+    ///   - updateHandler: Handler called with each weather update or error
+    public func startObservingWeather(
+        for location: String,
+        interval: TimeInterval = 60.0,
+        updateHandler: @escaping (WeatherData?, Error?) -> Void
+    ) {
+        // Stop any existing observation
+        stopObservingWeather()
+        
+        // Store the location and handler
+        observedLocation = location
+        self.updateHandler = updateHandler
+        
+        // Fetch immediately
+        fetchWeather(for: location, completion: updateHandler)
+        
+        // Set up timer for periodic updates
+        updateTimer = Timer.scheduledTimer(
+            withTimeInterval: interval,
+            repeats: true
+        ) { [weak self] _ in
+            self?.fetchWeather(for: location, completion: updateHandler)
+        }
+    }
+    
+    /// Stop observing weather updates
+    public func stopObservingWeather() {
+        updateTimer?.invalidate()
+        updateTimer = nil
+        observedLocation = nil
+        updateHandler = nil
+    }
+    
+    /// Check if currently observing weather updates
+    public var isObserving: Bool {
+        return updateTimer != nil && observedLocation != nil
     }
     
     /// Map Alamofire errors to WeatherError

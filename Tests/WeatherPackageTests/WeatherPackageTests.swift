@@ -123,4 +123,88 @@ final class WeatherPackageTests: XCTestCase {
         XCTAssertFalse(WeatherError.parsingError.errorDescription?.isEmpty ?? true)
         XCTAssertFalse(WeatherError.unknown.errorDescription?.isEmpty ?? true)
     }
+    
+    func testWeatherObservationNotObservingInitially() {
+        // Test that service is not observing initially
+        XCTAssertFalse(WeatherService.shared.isObserving)
+    }
+    
+    func testWeatherObservationStart() {
+        // Test that observation can be started
+        let expectation = self.expectation(description: "Should receive weather update")
+        
+        WeatherService.shared.startObservingWeather(
+            for: "Amsterdam",
+            interval: 0.5
+        ) { weatherData, error in
+            // We expect this to be called at least once
+            expectation.fulfill()
+        }
+        
+        // Verify observation is active
+        XCTAssertTrue(WeatherService.shared.isObserving)
+        
+        // Wait for at least one update
+        waitForExpectations(timeout: 2.0)
+        
+        // Clean up
+        WeatherService.shared.stopObservingWeather()
+    }
+    
+    func testWeatherObservationStop() {
+        // Test that observation can be stopped
+        let expectation = self.expectation(description: "Should receive weather update")
+        
+        WeatherService.shared.startObservingWeather(
+            for: "Amsterdam",
+            interval: 10.0
+        ) { weatherData, error in
+            expectation.fulfill()
+        }
+        
+        // Verify observation is active
+        XCTAssertTrue(WeatherService.shared.isObserving)
+        
+        // Stop observation
+        WeatherService.shared.stopObservingWeather()
+        
+        // Verify observation is stopped
+        XCTAssertFalse(WeatherService.shared.isObserving)
+        
+        // Wait for initial fetch to complete
+        waitForExpectations(timeout: 2.0)
+    }
+    
+    func testWeatherObservationRestart() {
+        // Test that starting a new observation stops the previous one
+        let firstExpectation = self.expectation(description: "First location update")
+        
+        WeatherService.shared.startObservingWeather(
+            for: "Amsterdam",
+            interval: 10.0
+        ) { weatherData, error in
+            firstExpectation.fulfill()
+        }
+        
+        XCTAssertTrue(WeatherService.shared.isObserving)
+        
+        // Start observing a different location
+        let secondExpectation = self.expectation(description: "Second location update")
+        
+        WeatherService.shared.startObservingWeather(
+            for: "London",
+            interval: 10.0
+        ) { weatherData, error in
+            secondExpectation.fulfill()
+        }
+        
+        // Should still be observing
+        XCTAssertTrue(WeatherService.shared.isObserving)
+        
+        // Wait for updates
+        waitForExpectations(timeout: 2.0)
+        
+        // Clean up
+        WeatherService.shared.stopObservingWeather()
+    }
 }

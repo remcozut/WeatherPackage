@@ -15,10 +15,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Configurable update intervals for weather observations (default: 60 seconds)
 - Automatic cleanup when starting a new observation
 - Additional unit tests for observation functionality
+- **KMP Sample App** - Full Kotlin Multiplatform Mobile sample application
+  - iOS app using SwiftUI with WeatherPackage integration
+  - Android app using Jetpack Compose
+  - Shared business logic in Kotlin Multiplatform
+  - Demonstrates one-time fetch and live weather observation
+  - Complete documentation and quick start guide
 
 ### Changed
 - Updated README with observation examples for Swift and Kotlin Multiplatform
 - Enhanced BasicUsage.swift example to demonstrate observation functionality
+- Added quick links to sample app in main README
 
 ## [1.0.0] - 2025-12-31
 

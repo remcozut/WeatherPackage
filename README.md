@@ -2,6 +2,12 @@
 
 A Swift Package for fetching weather data that is compatible with Kotlin Multiplatform (KMP) via Objective-C bridge.
 
+## 🎯 Quick Links
+
+- **[KMP Sample App](SampleApp/)** - Full working example with iOS and Android apps
+- **[Quick Start](SampleApp/QUICKSTART.md)** - Get the sample app running in minutes
+- **[KMP Integration Guide](KMP_INTEGRATION.md)** - Detailed integration instructions
+
 ## Features
 
 - ✅ Fetch weather information for any location
